@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estratega Internacional Bci | Propuesta Final</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bci-blue: #002D5A;       /* Azul Corporativo */
+            --bci-light-blue: #005FFF; /* Azul Acento */
+            --bci-cyan: #00B5E2;       /* Cyan Secundario */
+            --bci-red: #D62D20;        /* Rojo Bci */
+            --bci-green: #28a745;      /* Verde Positivo */
+            --bci-yellow: #ffc107;     /* Amarillo Neutral */
+            --bg-gray: #F4F6F9;        /* Fondo General */
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-gray);
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: var(--bci-blue);
+            color: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid var(--bci-red);
+        }
+        header h1 { margin: 0; font-size: 1.5rem; font-weight: 300; }
+        header h1 strong { font-weight: 700; }
+
+        /* --- LAYOUT --- */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            gap: 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px; /* Columna principal amplia + Sidebar fijo */
+            gap: 2rem;
+        }
+        @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+        /* --- TARJETAS --- */
+        .card {
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .card-header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.8rem;
+            margin-bottom: 1rem;
+            color: var(--bci-blue);
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-sub { font-weight: 400; font-size: 0.85rem; color: #666; }
+
+        /* --- CONTROLES (Inputs) --- */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            align-items: end;
+        }
+        .form-group { display: flex; flex-direction: column; }
+        label { font-size: 0.85rem; color: #555; margin-bottom: 0.4rem; font-weight: 600; }
+        input[type="number"], select { padding: 0.6rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; width: 100%; box-sizing: border-box; }
+        input[type="range"] { width: 100%; cursor: pointer; }
+
+        /* --- TABLAS --- */
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th { background-color: #f8f9fa; color: var(--bci-blue); text-align: left; padding: 0.8rem; font-weight: 600; }
+        td { padding: 0.8rem; border-bottom: 1px solid #eee; vertical-align: middle; }
+        .text-right { text-align: right; }
+        .text-bci { color: var(--bci-blue); font-weight: bold; }
+        
+        /* Encabezado de Sección (RV / RF) */
+        .section-header td {
+            background-color: #e9ecef;
+            color: var(--bci-blue);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            padding: 0.6rem 0.8rem;
+            border-top: 2px solid #dde2e6;
+        }
+
+        /* Descripción del fondo */
+        .fund-desc {
+            display: block;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 4px;
+            font-weight: 400;
+            line-height: 1.3;
+        }
+        
+        /* Estilo para fila rechazada */
+        .row-rejected { background-color: #fff5f5; opacity: 0.6; color: #999; text-decoration: line-through; }
+        .row-rejected .fund-desc { color: #aaa; }
+
+        /* --- SWITCH (Interruptor) --- */
+        .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--bci-light-blue); }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+        /* --- SIDEBAR & CHARTS --- */
+        .tactical-matrix { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+        .tactical-item { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; }
+        .badge { padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.7rem; font-weight: bold; color: white; }
+        .bg-green { background-color: var(--bci-green); }
+        .bg-yellow { background-color: var(--bci-yellow); color: #444; }
+        .bg-red { background-color: var(--bci-red); }
+
+        /* --- PRINT --- */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; }
+            .card { box-shadow: none; border: 1px solid #ddd; }
+            .container { margin: 0; width: 100%; max-width: 100%; }
+            .switch { display: none; } /* Ocultar switch en PDF */
+            .row-rejected { display: none; } /* Ocultar filas rechazadas en PDF */
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div>
+        <h1>SOFI/MATTEO <strong>Estrategia Internacional</strong></h1>
+        <small style="opacity: 0.9;">Propuesta de Inversión y Asset Allocation</small>
+    </div>
+    <div class="no-print">
+        <button onclick="window.print()" style="background:transparent; border:1px solid white; color:white; padding:6px 15px; cursor:pointer; font-weight:bold; border-radius:4px;">🖨️ Generar PDF</button>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="card no-print">
+        <div class="card-header">Configuración Inicial</div>
+        <div class="controls-grid">
+            <div class="form-group">
+                <label>Monto Inversión (USD)</label>
+                <input type="number" id="amount" value="100000" min="1000" step="1000" onchange="generateProposal()">
+            </div>
+            <div class="form-group">
+                <label>Perfil de Riesgo</label>
+                <select id="profile" onchange="resetAndGenerate()">
+                    <option value="muy_agresivo">Muy Agresivo</option>
+                    <option value="agresiva">Agresiva</option>
+                    <option value="moderada" selected>Moderada</option>
+                    <option value="mod_cons">Moderada Conservadora</option>
+                    <option value="conservador">Conservador</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Liquidez / Caja: <span id="liq-val" style="color:var(--bci-light-blue)">5%</span></label>
+                <input type="range" id="liquidity" min="0" max="50" value="5" step="1" oninput="updateLiqLabel(); generateProposal()">
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        
+        <div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span>1. Selección de Activos (Modelo Base)</span>
+                    <span class="card-sub">Interruptores: Acepta o rechaza fondos.</span>
+                </div>
+                <table id="selection-table">
+                    <thead>
+                        <tr>
+                            <th class="no-print" style="width:50px; text-align:center;">Estado</th>
+                            <th>Clase de Activo</th>
+                            <th>Producto Recomendado</th>
+                            <th class="text-right">Peso Base</th>
+                            <th class="text-right">Monto Base</th>
+                        </tr>
+                    </thead>
+                    <tbody id="selection-body">
+                        </tbody>
+                </table>
+            </div>
+
+            <div class="card" style="border-top: 4px solid var(--bci-green);">
+                <div class="card-header">
+                    <span>2. Propuesta Final Ajustada</span>
+                    <span class="card-sub">Redistribución proporcional aplicada.</span>
+                </div>
+                <table id="final-table">
+                    <thead>
+                        <tr style="background-color: #f0f4f8;">
+                            <th>Clase de Activo</th>
+                            <th>Producto Definitivo</th>
+                            <th class="text-right">Peso Final</th>
+                            <th class="text-right">Monto Final</th>
+                            <th class="text-right">Ret. 12M</th>
+                        </tr>
+                    </thead>
+                    <tbody id="final-body">
+                        </tbody>
+                    <tfoot>
+                        <tr style="background-color: var(--bci-blue); color: white;">
+                            <td colspan="2" class="text-right"><strong>TOTAL CARTERA</strong></td>
+                            <td class="text-right"><strong id="total-weight">100%</strong></td>
+                            <td class="text-right"><strong id="total-amount">$0</strong></td>
+                            <td class="text-right"><span id="total-return">-</span></td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #eee; display: flex; align-items: center; gap: 2rem;">
+                    <div style="text-align: center; min-width: 180px;">
+                        <div id="proj-return-val" style="color:var(--bci-blue); margin:0; font-size: 4rem; font-weight: bold; line-height: 1;">0.0%</div>
+                        <div style="color:#666; font-size: 1.1rem; margin-top: 10px; font-weight: 600;">Retorno Esperado (12M)</div>
+                    </div>
+                    <div style="height: 250px; flex-grow: 1;">
+                        <canvas id="scenarioChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="sidebar">
+            <div class="card">
+                <div class="card-header">Distribución Final</div>
+                <div style="height: 220px; position: relative;">
+                    <canvas id="allocationChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card tactical-matrix">
+                <div class="card-header" style="grid-column: 1 / -1;">Visión Táctica</div>
+                
+                <div style="grid-column: 1 / -1; font-weight:bold; font-size:0.8rem; margin-top:5px; color:#888;">RENTA VARIABLE</div>
+                <div class="tactical-item"><span>EE.UU.</span> <span class="badge bg-yellow">Neutral</span></div>
+                <div class="tactical-item"><span>Europa</span> <span class="badge bg-red">Subpond.</span></div>
+                <div class="tactical-item"><span>Japón</span> <span class="badge bg-yellow">Neutral</span></div>
+                <div class="tactical-item"><span>Asia Em.</span> <span class="badge bg-green">Positivo</span></div>
+                <div class="tactical-item"><span>Latam</span> <span class="badge bg-green">Positivo</span></div>
+
+                <div style="grid-column: 1 / -1; font-weight:bold; font-size:0.8rem; margin-top:10px; color:#888;">RENTA FIJA</div>
+                <div class="tactical-item"><span>Global IG</span> <span class="badge bg-green">Positivo</span></div>
+                <div class="tactical-item"><span>High Yield</span> <span class="badge bg-red">Negativo</span></div>
+                <div class="tactical-item"><span>EM Local</span> <span class="badge bg-green">Positivo</span></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    /* =========================================
+       DATOS: Focus List y Asset Allocation
+       ========================================= */
+
+    const PRODUCTS = {
+        // RV
+        "us_equity": { name: "Alliance Bernstein Select US", m12: 13.99, type: "RV", desc: "Fondo de gestión activa que invierte en acciones de empresas estadounidenses de mediana y gran capitalización." },
+        "europe_equity": { name: "JPM Europe Equity A", m12: 29.01, type: "RV", desc: "Invierte en una cartera diversificada de compañías europeas de alta calidad y crecimiento." },
+        "japan_equity": { name: "M&G (Lux) Japan A", m12: 23.79, type: "RV", desc: "Fondo enfocado en empresas japonesas infravaloradas (Value) con catalizadores de cambio." },
+        "global_em": { name: "BSF Emerging Mkts Equity", m12: 36.53, type: "RV", desc: "Exposición a empresas de mercados emergentes globales con sólidos fundamentales." },
+        "asia_equity": { name: "Schroder ISF Em. Asia", m12: 29.15, type: "RV", desc: "Captura el crecimiento de las economías asiáticas emergentes (excluye Japón)." },
+        "latam_equity": { name: "Amundi Latin America", m12: 45.91, type: "RV", desc: "Invierte en las principales compañías listadas en países de América Latina." },
+        "chile_equity": { name: "Portafolios Accionarios CDB", m12: 12.00, type: "RV", desc: "Estrategia de selección de acciones chilenas líderes (IPSA) con gestión activa local." },
+        
+        // RF
+        "global_bond": { name: "MS INV Global Bond", m12: 6.15, type: "RF", desc: "Deuda gubernamental y corporativa global de alta calidad crediticia (Investment Grade)." },
+        "em_hard": { name: "MS INV Emerging Mkts Debt", m12: 11.72, type: "RF", desc: "Bonos soberanos y corporativos de mercados emergentes emitidos en dólares (Hard Currency)." },
+        "em_local": { name: "PIMCO GIS Em. Local Bond", m12: 17.99, type: "RF", desc: "Inversión en deuda de mercados emergentes denominada en sus monedas locales." },
+        "latam_hy_debt": { name: "Ninety One Latam Corp", m12: 7.16, type: "RF", desc: "Estrategia de crédito corporativo latinoamericano de alto rendimiento (High Yield)." },
+        "us_flex": { name: "PIMCO GIS Income", m12: 8.43, type: "RF", desc: "Fondo flexible multisectorial enfocado en maximizar ingresos y proteger capital." },
+        "rf_local": { name: "Bonos Empresas Chilenas", m12: 6.80, type: "RF", desc: "Deuda corporativa y bancaria local de alta clasificación en UF y Pesos." },
+
+        // Liquidez
+        "liquidity": { name: "Pimco GIS Low Duration", m12: 7.71, type: "LIQ", desc: "Estrategia de muy corta duración en USD para preservación de capital y liquidez." }
+    };
+
+    const PROFILES = {
+        "muy_agresivo": { alloc: { "us_equity": 38.4, "europe_equity": 4.6, "japan_equity": 3.0, "global_em": 10.1, "asia_equity": 8.3, "latam_equity": 3.1, "chile_equity": 23.5, "global_bond": 5.0, "em_local": 1.4, "latam_hy_debt": 1.8, "us_flex": 5.0, "rf_local": 10.0 } },
+        "agresiva": { alloc: { "us_equity": 28.8, "europe_equity": 2.4, "japan_equity": 2.2, "global_em": 6.6, "asia_equity": 6.9, "latam_equity": 2.9, "chile_equity": 18.5, "global_bond": 10.0, "em_hard": 0.8, "em_local": 3.1, "latam_hy_debt": 2.4, "us_flex": 6.0, "rf_local": 25.0 } },
+        "moderada": { alloc: { "us_equity": 19.2, "europe_equity": 1.3, "japan_equity": 1.5, "global_em": 3.7, "asia_equity": 4.6, "latam_equity": 1.8, "chile_equity": 12.5, "global_bond": 15.0, "em_hard": 2.2, "em_local": 3.6, "latam_hy_debt": 3.7, "us_flex": 7.3, "rf_local": 42.0 } },
+        "mod_cons": { alloc: { "us_equity": 13.4, "europe_equity": 1.0, "japan_equity": 1.0, "global_em": 2.1, "asia_equity": 2.8, "latam_equity": 0.7, "chile_equity": 8.5, "global_bond": 18.0, "em_hard": 3.0, "em_local": 4.0, "latam_hy_debt": 4.4, "rf_local": 53.0 } },
+        "conservador": { alloc: { "us_equity": 5.8, "europe_equity": 0.6, "japan_equity": 0.4, "asia_equity": 1.8, "chile_equity": 3.5, "global_bond": 22.0, "em_hard": 4.2, "em_local": 4.4, "latam_hy_debt": 4.7, "rf_local": 65.0 } }
+    };
+
+    const GROUP_NAMES = {
+        "us_equity": "RV EE.UU.", "europe_equity": "RV Europa", "japan_equity": "RV Japón",
+        "global_em": "RV Emergente Global", "asia_equity": "RV Asia ex-Japan", "latam_equity": "RV Latam",
+        "chile_equity": "RV Chile Local", "global_bond": "Deuda Global IG", "em_hard": "Deuda EM (Dólar)",
+        "em_local": "Deuda EM (Local)", "latam_hy_debt": "Latam High Yield", "us_flex": "Deuda Flexible US",
+        "rf_local": "Renta Fija Local"
+    };
+
+    // Orden de visualización
+    const ORDER = ["us_equity", "europe_equity", "japan_equity", "global_em", "asia_equity", "latam_equity", "chile_equity", "global_bond", "em_hard", "em_local", "latam_hy_debt", "us_flex", "rf_local"];
+
+    let excludedAssets = new Set();
+    let chartAlloc = null;
+    let chartScen = null;
+    const fmtUSD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+    /* =========================================
+       FUNCIONES LÓGICAS
+       ========================================= */
+
+    function updateLiqLabel() { document.getElementById('liq-val').textContent = document.getElementById('liquidity').value + "%"; }
+    function resetAndGenerate() { excludedAssets.clear(); generateProposal(); }
+    
+    function toggleAsset(key) {
+        if (excludedAssets.has(key)) excludedAssets.delete(key);
+        else excludedAssets.add(key);
+        generateProposal();
+    }
+
+    function generateProposal() {
+        // 1. Inputs
+        const totalAmount = parseFloat(document.getElementById('amount').value) || 0;
+        const profileKey = document.getElementById('profile').value;
+        const liqPct = parseFloat(document.getElementById('liquidity').value) / 100;
+        const profile = PROFILES[profileKey];
+
+        // 2. Cálculo Base
+        const baseLiquidity = totalAmount * liqPct;
+        const investableAmount = totalAmount - baseLiquidity;
+
+        let map = {};
+        let rejectedTotal = 0;
+        let activeWeightSum = 0;
+
+        // Allocation Inicial
+        for (const [key, pct] of Object.entries(profile.alloc)) {
+            if (pct <= 0) continue;
+
+            const baseAmount = investableAmount * (pct / 100);
+            const isRejected = excludedAssets.has(key);
+
+            if (isRejected) {
+                rejectedTotal += baseAmount;
+            } else {
+                activeWeightSum += pct;
+            }
+
+            map[key] = {
+                baseAmount: baseAmount,
+                isRejected: isRejected,
+                finalAmount: isRejected ? 0 : baseAmount
+            };
+        }
+
+        renderSelectionTable(map, totalAmount);
+
+        // 3. Redistribución
+        let finalLiquidity = baseLiquidity;
+
+        if (activeWeightSum > 0 && rejectedTotal > 0) {
+            for (const key in map) {
+                if (!map[key].isRejected) {
+                    const share = profile.alloc[key] / activeWeightSum;
+                    const boost = rejectedTotal * share;
+                    map[key].finalAmount += boost;
+                }
+            }
+        } else if (activeWeightSum === 0) {
+            finalLiquidity += rejectedTotal;
+        }
+
+        renderFinalTable(map, finalLiquidity, totalAmount);
+    }
+
+    /* =========================================
+       RENDERIZADO
+       ========================================= */
+
+    function renderSelectionTable(map, total) {
+        let html = "";
+        
+        // Agrupar por Tipo (RV / RF)
+        const groups = { "RV": [], "RF": [] };
+        let totals = { "RV": 0, "RF": 0 };
+
+        ORDER.forEach(key => {
+            if (map[key]) {
+                const type = PRODUCTS[key].type;
+                if(groups[type]) {
+                    groups[type].push(key);
+                    totals[type] += map[key].baseAmount; // Sumar base amount para el header
+                }
+            }
+        });
+
+        // Generar HTML por grupo
+        for (const type of ["RV", "RF"]) {
+            if (groups[type].length > 0) {
+                const totalPct = (totals[type] / total) * 100;
+                const typeName = type === "RV" ? "Renta Variable" : "Renta Fija";
+                
+                // Header de Sección
+                html += `
+                    <tr class="section-header">
+                        <td class="no-print"></td>
+                        <td colspan="4">${typeName} (Total: ${totalPct.toFixed(1)}%)</td>
+                    </tr>
+                `;
+
+                // Filas de items
+                groups[type].forEach(key => {
+                    const data = map[key];
+                    const prod = PRODUCTS[key];
+                    const weight = (data.baseAmount / total) * 100;
+                    const rowClass = data.isRejected ? "row-rejected" : "";
+                    const checked = data.isRejected ? "" : "checked";
+
+                    html += `
+                        <tr class="${rowClass}">
+                            <td class="no-print" style="text-align:center;">
+                                <label class="switch">
+                                    <input type="checkbox" ${checked} onchange="toggleAsset('${key}')">
+                                    <span class="slider"></span>
+                                </label>
+                            </td>
+                            <td>${GROUP_NAMES[key]}</td>
+                            <td>
+                                <strong>${prod.name}</strong>
+                                <span class="fund-desc">${prod.desc}</span>
+                            </td>
+                            <td class="text-right">${weight.toFixed(1)}%</td>
+                            <td class="text-right">${fmtUSD.format(data.baseAmount)}</td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+        document.getElementById('selection-body').innerHTML = html;
+    }
+
+    function renderFinalTable(map, liq, total) {
+        let html = "";
+        let wRet = 0;
+        let cLabels = [], cData = [], cColors = [];
+        
+        // Agrupar para final
+        const groups = { "RV": [], "RF": [] };
+        let totals = { "RV": 0, "RF": 0 };
+
+        ORDER.forEach(key => {
+            if (map[key] && !map[key].isRejected) {
+                const type = PRODUCTS[key].type;
+                if(groups[type]) {
+                    groups[type].push(key);
+                    totals[type] += map[key].finalAmount;
+                }
+            }
+        });
+
+        // Render RV y RF
+        for (const type of ["RV", "RF"]) {
+            if (groups[type].length > 0) {
+                const totalPct = (totals[type] / total) * 100;
+                const typeName = type === "RV" ? "Renta Variable" : "Renta Fija";
+                
+                html += `
+                    <tr class="section-header">
+                        <td colspan="5">${typeName} (Total: ${totalPct.toFixed(1)}%)</td>
+                    </tr>
+                `;
+
+                groups[type].forEach(key => {
+                    const data = map[key];
+                    const prod = PRODUCTS[key];
+                    const w = data.finalAmount / total;
+                    wRet += (prod.m12 * w);
+
+                    cLabels.push(GROUP_NAMES[key]);
+                    cData.push(data.finalAmount);
+                    cColors.push(type === "RV" ? "#002D5A" : "#D62D20");
+
+                    html += `
+                        <tr>
+                            <td>${GROUP_NAMES[key]}</td>
+                            <td><strong>${prod.name}</strong></td>
+                            <td class="text-right">${(w*100).toFixed(1)}%</td>
+                            <td class="text-right"><strong>${fmtUSD.format(data.finalAmount)}</strong></td>
+                            <td class="text-right" style="color:${prod.m12 >= 0 ? 'var(--bci-blue)' : 'red'}">${prod.m12}%</td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        // Liquidez
+        const prodLiq = PRODUCTS["liquidity"];
+        const wLiq = liq / total;
+        wRet += (prodLiq.m12 * wLiq);
+
+        cLabels.push("Liquidez");
+        cData.push(liq);
+        cColors.push("#00B5E2");
+
+        html += `
+            <tr class="section-header">
+                <td colspan="5">Liquidez (Total: ${(wLiq*100).toFixed(1)}%)</td>
+            </tr>
+            <tr style="background-color: #eef9fd;">
+                <td>Liquidez / Caja</td>
+                <td>${prodLiq.name}</td>
+                <td class="text-right">${(wLiq*100).toFixed(1)}%</td>
+                <td class="text-right">${fmtUSD.format(liq)}</td>
+                <td class="text-right text-bci">${prodLiq.m12}%</td>
+            </tr>
+        `;
+
+        document.getElementById('final-body').innerHTML = html;
+        document.getElementById('total-amount').textContent = fmtUSD.format(total);
+        document.getElementById('total-return').textContent = wRet.toFixed(2) + "%";
+        document.getElementById('proj-return-val').textContent = wRet.toFixed(2) + "%";
+
+        renderCharts(cLabels, cData, cColors, wRet);
+    }
+
+    function renderCharts(l, d, c, ret) {
+        const ctxA = document.getElementById('allocationChart').getContext('2d');
+        if (chartAlloc) chartAlloc.destroy();
+        chartAlloc = new Chart(ctxA, {
+            type: 'doughnut',
+            data: { labels: l, datasets: [{ data: d, backgroundColor: c, borderWidth: 1 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        const ctxS = document.getElementById('scenarioChart').getContext('2d');
+        if (chartScen) chartScen.destroy();
+        chartScen = new Chart(ctxS, {
+            type: 'bar',
+            data: {
+                labels: ['Conservador', 'Base', 'Optimista'],
+                datasets: [{
+                    label: 'Retorno %',
+                    data: [ret*0.6, ret, ret*1.4],
+                    backgroundColor: ['#D62D20', '#002D5A', '#28a745'],
+                    borderRadius: 6,
+                    barPercentage: 0.6
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } }, 
+                scales: { 
+                    y: { beginAtZero: true, ticks: { font: { size: 12 } } },
+                    x: { ticks: { font: { size: 13, weight: 'bold' } } }
+                } 
+            } 
+        });
+    }
+
+    // Inicializar
+    window.onload = generateProposal;
+
+</script>
+
+</body>
+</html>
