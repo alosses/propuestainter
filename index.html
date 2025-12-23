@@ -113,6 +113,14 @@
             line-height: 1.3;
         }
         
+        .isin-tag {
+            font-size: 0.8rem;
+            color: #888;
+            font-weight: 400;
+            margin-left: 6px;
+            font-family: monospace;
+        }
+
         .row-rejected { background-color: #fff5f5; opacity: 0.6; color: #999; text-decoration: line-through; }
         .row-rejected .fund-desc { color: #aaa; }
 
@@ -283,22 +291,22 @@
     /* DATOS */
     const PRODUCTS = {
         // RV 
-        "us_equity": { name: "Alliance Bernstein Select US", m12: 13.99, type: "RV", desc: "Fondo de gestión activa que invierte en acciones de empresas estadounidenses de mediana y gran capitalización." },
-        "europe_equity": { name: "JPM Europe Equity A", m12: 29.01, type: "RV", desc: "Invierte en una cartera diversificada de compañías europeas de alta calidad y crecimiento." },
-        "japan_equity": { name: "M&G (Lux) Japan A", m12: 23.79, type: "RV", desc: "Fondo enfocado en empresas japonesas infravaloradas (Value) con catalizadores de cambio." },
-        "global_em": { name: "BSF Emerging Mkts Equity", m12: 36.53, type: "RV", desc: "Exposición a empresas de mercados emergentes globales con sólidos fundamentales." },
-        "asia_equity": { name: "Schroder ISF Em. Asia", m12: 29.15, type: "RV", desc: "Captura el crecimiento de las economías asiáticas emergentes (excluye Japón)." },
-        "latam_equity": { name: "Amundi Latin America", m12: 45.91, type: "RV", desc: "Invierte en las principales compañías listadas en países de América Latina." },
-        "chile_equity": { name: "Portafolios Accionarios CDB", m12: 12.00, type: "RV", desc: "Estrategia de selección de acciones chilenas líderes (IPSA) con gestión activa local." },
+        "us_equity": { name: "Alliance Bernstein Select US", isin: "LU0683600562", m12: 13.99, type: "RV", desc: "Fondo de gestión activa que invierte en acciones de empresas estadounidenses de mediana y gran capitalización." },
+        "europe_equity": { name: "JPM Europe Equity A", isin: "LU0119078227", m12: 29.01, type: "RV", desc: "Invierte en una cartera diversificada de compañías europeas de alta calidad y crecimiento." },
+        "japan_equity": { name: "M&G (Lux) Japan A", isin: "LU1684384271", m12: 23.79, type: "RV", desc: "Fondo enfocado en empresas japonesas infravaloradas (Value) con catalizadores de cambio." },
+        "global_em": { name: "BSF Emerging Mkts Equity", isin: "LU1289970086", m12: 36.53, type: "RV", desc: "Exposición a empresas de mercados emergentes globales con sólidos fundamentales." },
+        "asia_equity": { name: "Schroder ISF Em. Asia", isin: "LU0181495838", m12: 29.15, type: "RV", desc: "Captura el crecimiento de las economías asiáticas emergentes (excluye Japón)." },
+        "latam_equity": { name: "Amundi Latin America", isin: "LU0201575346", m12: 45.91, type: "RV", desc: "Invierte en las principales compañías listadas en países de América Latina." },
+        "chile_equity": { name: "Portafolios Accionarios CDB", isin: "Local", m12: 12.00, type: "RV", desc: "Estrategia de selección de acciones chilenas líderes (IPSA) con gestión activa local." },
         // RF 
-        "global_bond": { name: "MS INV Global Bond", m12: 6.15, type: "RF", desc: "Deuda gubernamental y corporativa global de alta calidad crediticia (Investment Grade)." },
-        "em_hard": { name: "MS INV Emerging Mkts Debt", m12: 11.72, type: "RF", desc: "Bonos soberanos y corporativos de mercados emergentes emitidos en dólares (Hard Currency)." },
-        "em_local": { name: "PIMCO GIS Em. Local Bond", m12: 17.99, type: "RF", desc: "Inversión en deuda de mercados emergentes denominada en sus monedas locales." },
-        "latam_hy_debt": { name: "Ninety One Latam Corp", m12: 7.16, type: "RF", desc: "Estrategia de crédito corporativo latinoamericano de alto rendimiento (High Yield)." },
-        "us_flex": { name: "PIMCO GIS Income", m12: 8.43, type: "RF", desc: "Fondo flexible multisectorial enfocado en maximizar ingresos y proteger capital." },
-        "rf_local": { name: "Bonos Empresas Chilenas", m12: 6.80, type: "RF", desc: "Deuda corporativa y bancaria local de alta clasificación en UF y Pesos." },
+        "global_bond": { name: "MS INV Global Bond", isin: "LU0073230426", m12: 6.15, type: "RF", desc: "Deuda gubernamental y corporativa global de alta calidad crediticia (Investment Grade)." },
+        "em_hard": { name: "MS INV Emerging Mkts Debt", isin: "LU0073230004", m12: 11.72, type: "RF", desc: "Bonos soberanos y corporativos de mercados emergentes emitidos en dólares (Hard Currency)." },
+        "em_local": { name: "PIMCO GIS Em. Local Bond", isin: "IE00B3DD5N41", m12: 17.99, type: "RF", desc: "Inversión en deuda de mercados emergentes denominada en sus monedas locales." },
+        "latam_hy_debt": { name: "Ninety One Latam Corp", isin: "LU0492942718", m12: 7.16, type: "RF", desc: "Estrategia de crédito corporativo latinoamericano de alto rendimiento (High Yield)." },
+        "us_flex": { name: "PIMCO GIS Income", isin: "IE00B7KFL990", m12: 8.43, type: "RF", desc: "Fondo flexible multisectorial enfocado en maximizar ingresos y proteger capital." },
+        "rf_local": { name: "Bonos Empresas Chilenas", isin: "Local", m12: 6.80, type: "RF", desc: "Deuda corporativa y bancaria local de alta clasificación en UF y Pesos." },
         // Liquidez
-        "liquidity": { name: "Pimco GIS Low Duration", m12: 7.71, type: "LIQ", desc: "Estrategia de muy corta duración en USD para preservación de capital y liquidez." }
+        "liquidity": { name: "Pimco GIS Low Duration", isin: "IE00BDT57T44", m12: 7.71, type: "LIQ", desc: "Estrategia de muy corta duración en USD para preservación de capital y liquidez." }
     };
 
     const PROFILES = {
@@ -445,7 +453,7 @@
                             </td>
                             <td>${GROUP_NAMES[key]}</td>
                             <td>
-                                <strong>${prod.name}</strong>
+                                <strong>${prod.name}</strong> <span class="isin-tag">(${prod.isin})</span>
                                 <span class="fund-desc">${prod.desc}</span>
                             </td>
                             <td class="text-right">${weight.toFixed(1)}%</td>
@@ -500,7 +508,9 @@
                     html += `
                         <tr>
                             <td>${GROUP_NAMES[key]}</td>
-                            <td><strong>${prod.name}</strong></td>
+                            <td>
+                                <strong>${prod.name}</strong> <span class="isin-tag">(${prod.isin})</span>
+                            </td>
                             <td class="text-right">${(w*100).toFixed(1)}%</td>
                             <td class="text-right"><strong>${fmtUSD.format(data.finalAmount)}</strong></td>
                             <td class="text-right" style="color:${prod.m12 >= 0 ? 'var(--bci-blue)' : 'red'}">${prod.m12}%</td>
@@ -524,7 +534,9 @@
             </tr>
             <tr style="background-color: #eef9fd;">
                 <td>Liquidez / Caja</td>
-                <td>${prodLiq.name}</td>
+                <td>
+                    ${prodLiq.name} <span class="isin-tag">(${prodLiq.isin})</span>
+                </td>
                 <td class="text-right">${(wLiq*100).toFixed(1)}%</td>
                 <td class="text-right">${fmtUSD.format(liq)}</td>
                 <td class="text-right text-bci">${prodLiq.m12}%</td>
