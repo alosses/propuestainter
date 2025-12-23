@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estratega Internacional Bci | Propuesta Normalizada</title>
+    <title>Estratega Internacional Bci | Visión Táctica y Propuesta</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -12,6 +12,7 @@
             --bci-cyan: #00B5E2;       /* Cyan Secundario */
             --bci-red: #D62D20;        /* Rojo Bci */
             --bci-green: #28a745;      /* Verde Positivo */
+            --bci-yellow: #ffc107;     /* Amarillo Neutral */
             --bg-gray: #F4F6F9;        /* Fondo General */
             --white: #ffffff;
         }
@@ -48,7 +49,7 @@
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr 320px;
+            grid-template-columns: 1fr 300px; /* Columna principal amplia + Sidebar fijo */
             gap: 2rem;
         }
         @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
@@ -123,6 +124,14 @@
         input:checked + .slider { background-color: var(--bci-light-blue); }
         input:checked + .slider:before { transform: translateX(16px); }
 
+        /* --- TACTICAL MATRIX (SEMÁFORO) --- */
+        .tactical-matrix { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+        .tactical-item { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; }
+        .badge { padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.7rem; font-weight: bold; color: white; }
+        .bg-green { background-color: var(--bci-green); }
+        .bg-yellow { background-color: var(--bci-yellow); color: #444; }
+        .bg-red { background-color: var(--bci-red); }
+
         /* --- PRINT --- */
         @media print {
             .no-print { display: none !important; }
@@ -130,6 +139,8 @@
             .card { box-shadow: none; border: 1px solid #ddd; }
             .switch { display: none; }
             .row-rejected { display: none; }
+            .dashboard-grid { display: block; }
+            .sidebar { margin-top: 2rem; break-inside: avoid; }
         }
     </style>
 </head>
@@ -138,7 +149,7 @@
 <header>
     <div>
         <h1>SOFI/MATTEO <strong>Estrategia Internacional</strong></h1>
-        <small style="opacity: 0.9;">Simulador de Portafolio Normalizado</small>
+        <small style="opacity: 0.9;">Simulador de Portafolio con Visión Táctica</small>
     </div>
     <div class="no-print">
         <button onclick="window.print()" style="background:transparent; border:1px solid white; color:white; padding:6px 15px; cursor:pointer; font-weight:bold; border-radius:4px;">🖨️ Generar PDF</button>
@@ -178,7 +189,7 @@
             <div class="card">
                 <div class="card-header">
                     <span>1. Selección de Activos (Modelo Base)</span>
-                    <span class="card-sub">Pesos normalizados al 100% de la inversión.</span>
+                    <span class="card-sub">Pesos normalizados al 100%.</span>
                 </div>
                 <table id="selection-table">
                     <thead>
@@ -236,6 +247,23 @@
         </div>
 
         <div class="sidebar">
+            
+            <div class="card tactical-matrix">
+                <div class="card-header" style="grid-column: 1 / -1;">Visión Táctica Bci</div>
+                
+                <div style="grid-column: 1 / -1; font-weight:bold; font-size:0.8rem; margin-top:5px; color:#888;">RENTA VARIABLE</div>
+                <div class="tactical-item"><span>EE.UU.</span> <span class="badge bg-yellow">Neutral</span></div>
+                <div class="tactical-item"><span>Europa</span> <span class="badge bg-red">Subpond.</span></div>
+                <div class="tactical-item"><span>Japón</span> <span class="badge bg-yellow">Neutral</span></div>
+                <div class="tactical-item"><span>Asia Em.</span> <span class="badge bg-green">Positivo</span></div>
+                <div class="tactical-item"><span>Latam</span> <span class="badge bg-green">Positivo</span></div>
+
+                <div style="grid-column: 1 / -1; font-weight:bold; font-size:0.8rem; margin-top:10px; color:#888;">RENTA FIJA</div>
+                <div class="tactical-item"><span>Global IG</span> <span class="badge bg-green">Positivo</span></div>
+                <div class="tactical-item"><span>High Yield</span> <span class="badge bg-red">Negativo</span></div>
+                <div class="tactical-item"><span>EM Local</span> <span class="badge bg-green">Positivo</span></div>
+            </div>
+
             <div class="card">
                 <div class="card-header">Distribución Final</div>
                 <div style="height: 220px; position: relative;">
@@ -243,8 +271,8 @@
                 </div>
             </div>
             
-            <div class="card" style="background:#f8f9fa; font-size:0.9rem; color:#666;">
-                <p><strong>Nota de Ajuste:</strong> Los porcentajes del modelo base han sido re-escalados automáticamente para sumar 100% sobre el monto invertible, corrigiendo las desviaciones de la estrategia original.</p>
+            <div class="card" style="background:#f8f9fa; font-size:0.85rem; color:#666; padding: 1rem;">
+                <p style="margin:0;"><strong>Ajuste Automático:</strong> Los porcentajes del modelo han sido normalizados para asegurar que la suma total sea 100%.</p>
             </div>
         </div>
 
@@ -254,7 +282,7 @@
 <script>
     /* DATOS */
     const PRODUCTS = {
-        // RV
+        // RV 
         "us_equity": { name: "Alliance Bernstein Select US", m12: 13.99, type: "RV", desc: "Fondo de gestión activa que invierte en acciones de empresas estadounidenses de mediana y gran capitalización." },
         "europe_equity": { name: "JPM Europe Equity A", m12: 29.01, type: "RV", desc: "Invierte en una cartera diversificada de compañías europeas de alta calidad y crecimiento." },
         "japan_equity": { name: "M&G (Lux) Japan A", m12: 23.79, type: "RV", desc: "Fondo enfocado en empresas japonesas infravaloradas (Value) con catalizadores de cambio." },
@@ -262,7 +290,7 @@
         "asia_equity": { name: "Schroder ISF Em. Asia", m12: 29.15, type: "RV", desc: "Captura el crecimiento de las economías asiáticas emergentes (excluye Japón)." },
         "latam_equity": { name: "Amundi Latin America", m12: 45.91, type: "RV", desc: "Invierte en las principales compañías listadas en países de América Latina." },
         "chile_equity": { name: "Portafolios Accionarios CDB", m12: 12.00, type: "RV", desc: "Estrategia de selección de acciones chilenas líderes (IPSA) con gestión activa local." },
-        // RF
+        // RF 
         "global_bond": { name: "MS INV Global Bond", m12: 6.15, type: "RF", desc: "Deuda gubernamental y corporativa global de alta calidad crediticia (Investment Grade)." },
         "em_hard": { name: "MS INV Emerging Mkts Debt", m12: 11.72, type: "RF", desc: "Bonos soberanos y corporativos de mercados emergentes emitidos en dólares (Hard Currency)." },
         "em_local": { name: "PIMCO GIS Em. Local Bond", m12: 17.99, type: "RF", desc: "Inversión en deuda de mercados emergentes denominada en sus monedas locales." },
@@ -315,27 +343,24 @@
         const baseLiquidity = totalAmount * liqPct;
         const investableAmount = totalAmount - baseLiquidity;
 
-        // 1. Normalización de Pesos (Solución al "No Cuadra")
-        // Sumamos los pesos raw del perfil
+        // 1. Normalización de Pesos
         let rawSum = 0;
         for (const [key, pct] of Object.entries(profile.alloc)) {
             if (pct > 0) rawSum += pct;
         }
-        
-        // Factor de escala
         const scaleFactor = rawSum > 0 ? (100 / rawSum) : 1;
 
         let map = {};
         let rejectedTotal = 0;
-        let activeNormalizedSum = 0; // Suma de pesos normalizados activos
+        let activeNormalizedSum = 0;
 
         for (const [key, pct] of Object.entries(profile.alloc)) {
             if (pct <= 0) continue;
 
-            // Calculamos el peso normalizado (para que sume 100% sobre lo invertible)
+            // Peso normalizado
             const normalizedPct = pct * scaleFactor;
             
-            // Monto Base usando el peso normalizado
+            // Monto Base
             const baseAmount = investableAmount * (normalizedPct / 100);
             
             const isRejected = excludedAssets.has(key);
@@ -362,7 +387,6 @@
         if (activeNormalizedSum > 0 && rejectedTotal > 0) {
             for (const key in map) {
                 if (!map[key].isRejected) {
-                    // Redistribuir según peso relativo normalizado
                     const share = map[key].normalizedWeight / activeNormalizedSum;
                     const boost = rejectedTotal * share;
                     map[key].finalAmount += boost;
@@ -407,7 +431,6 @@
                 groups[type].forEach(key => {
                     const data = map[key];
                     const prod = PRODUCTS[key];
-                    // Peso visual sobre el total (incluyendo liquidez)
                     const weight = (data.baseAmount / total) * 100;
                     const rowClass = data.isRejected ? "row-rejected" : "";
                     const checked = data.isRejected ? "" : "checked";
@@ -556,5 +579,4 @@
 </script>
 
 </body>
-
 </html>
